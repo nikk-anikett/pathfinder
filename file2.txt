@@ -1,0 +1,39 @@
+const express = require('express');
+const dgram = require('dgram');
+const app = express();
+const server = dgram.createSocket('udp4');
+
+// Data received from UDP will be stored in this variable
+let receivedData = '';
+
+// UDP server to receive data
+server.on('message', (msg, rinfo) => {
+  receivedData = msg.toString('utf8');
+  console.log('Received data:', receivedData);
+});
+
+server.on('listening', () => {
+  const address = server.address();
+  console.log(`UDP server listening on ${address.address}:${address.port}`);
+});
+
+server.on('error', (err) => {
+  console.error('UDP server error:', err);
+  server.close();
+});
+
+const PORT = 15000;
+server.bind(PORT);
+
+// Set up Express with EJS template engine
+app.set('view engine', 'ejs');
+
+// Route to display received data in a webpage
+app.get('/', (req, res) => {
+  res.render('index', { data: receivedData });
+});
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Web server listening on http://localhost:${port}`);
+});
