@@ -37,3 +37,321 @@ const port = 3000;
 app.listen(port, () => {
   console.log(`Web server listening on http://localhost:${port}`);
 });
+
+
+
+
+const express = require('express');
+const dgram = require('dgram');
+const app = express();
+const server = dgram.createSocket('udp4');
+
+// Data received from UDP will be stored in this array
+let receivedData = [];
+
+// UDP server to receive data
+server.on('message', (msg, rinfo) => {
+  const jsonData = msg.toString('utf8');
+  const dataObj = JSON.parse(jsonData);
+  receivedData.push(dataObj);
+  console.log('Received data:', receivedData);
+});
+
+server.on('listening', () => {
+  const address = server.address();
+  console.log(`UDP server listening on ${address.address}:${address.port}`);
+});
+
+server.on('error', (err) => {
+  console.error('UDP server error:', err);
+  server.close();
+});
+
+const PORT = 15000;
+server.bind(PORT);
+
+// Route to provide received data as JSON
+app.get('/data', (req, res) => {
+  res.json(receivedData);
+});
+
+// Route to check if data is available to fetch
+app.get('/checkdata', (req, res) => {
+  if (receivedData.length > 0) {
+    res.json({ available: true });
+  } else {
+    res.json({ available: false });
+  }
+});
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Web server listening on http://localhost:${port}`);
+});
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Received Data</title>
+</head>
+<body>
+  <h1>Received Data:</h1>
+  <table border="1" id="dataTable">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script>
+    function fetchData() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector('#dataTable tbody');
+          tableBody.innerHTML = '';
+
+          data.forEach(row => {
+            const newRow = tableBody.insertRow();
+            newRow.insertCell().innerText = row.FirstName;
+            newRow.insertCell().innerText = row.LastName;
+            newRow.insertCell().innerText = row.Email;
+          });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Function to check if data is available to fetch
+    function checkDataAvailability() {
+      fetch('/checkdata')
+        .then(response => response.json())
+        .then(data => {
+          if (data.available) {
+            fetchData();
+          }
+        })
+        .catch(error => console.error('Error checking data availability:', error));
+    }
+
+    // Check data availability when the page is loaded
+    document.addEventListener('DOMContentLoaded', checkDataAvailability);
+
+    // Periodically check data availability
+    setInterval(checkDataAvailability, 5000); // Check every 5 seconds
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Received Data</title>
+</head>
+<body>
+  <h1>Received Data:</h1>
+  <table border="1" id="dataTable">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function fetchData() {
+        fetch('/data')
+          .then(response => response.json())
+          .then(data => {
+            const tableBody = document.querySelector('#dataTable tbody');
+            tableBody.innerHTML = '';
+
+            data.forEach(row => {
+              const newRow = tableBody.insertRow();
+              newRow.insertCell().innerText = row.FirstName;
+              newRow.insertCell().innerText = row.LastName;
+              newRow.insertCell().innerText = row.Email;
+            });
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      }
+
+      setInterval(fetchData, 5000); // Fetch data every 5 seconds
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+const express = require('express');
+const dgram = require('dgram');
+const app = express();
+const server = dgram.createSocket('udp4');
+
+// Data received from UDP will be stored in this array
+let receivedData = [];
+
+// UDP server to receive data
+server.on('message', (msg, rinfo) => {
+  const jsonData = msg.toString('utf8');
+  const dataObj = JSON.parse(jsonData);
+  receivedData.push(dataObj);
+  console.log('Received data:', receivedData);
+});
+
+server.on('listening', () => {
+  const address = server.address();
+  console.log(`UDP server listening on ${address.address}:${address.port}`);
+});
+
+server.on('error', (err) => {
+  console.error('UDP server error:', err);
+  server.close();
+});
+
+const PORT = 15000;
+server.bind(PORT);
+
+// Route to provide received data as JSON
+app.get('/data', (req, res) => {
+  res.json(receivedData);
+});
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Web server listening on http://localhost:${port}`);
+});
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Received Data</title>
+</head>
+<body>
+  <h1>Received Data:</h1>
+  <table border="1" id="dataTable">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script>
+    function fetchData() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector('#dataTable tbody');
+          tableBody.innerHTML = '';
+
+          data.forEach(row => {
+            const newRow = tableBody.insertRow();
+            newRow.insertCell().innerText = row.FirstName;
+            newRow.insertCell().innerText = row.LastName;
+            newRow.insertCell().innerText = row.Email;
+          });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000); // Fetch data every 5 seconds
+  </script>
+</body>
+</html>
+
+
+const express = require('express');
+const dgram = require('dgram');
+const app = express();
+const server = dgram.createSocket('udp4');
+
+// Data received from UDP will be stored in this array
+let receivedData = [];
+
+// UDP server to receive data
+server.on('message', (msg, rinfo) => {
+  const jsonData = msg.toString('utf8');
+  const dataObj = JSON.parse(jsonData);
+  receivedData.push(dataObj);
+  console.log('Received data:', receivedData);
+});
+
+server.on('listening', () => {
+  const address = server.address();
+  console.log(`UDP server listening on ${address.address}:${address.port}`);
+});
+
+server.on('error', (err) => {
+  console.error('UDP server error:', err);
+  server.close();
+});
+
+const PORT = 15000;
+server.bind(PORT);
+
+// Set up Express with EJS template engine
+app.set('view engine', 'ejs');
+
+// Route to display received data in a webpage
+app.get('/', (req, res) => {
+  res.render('index', { data: receivedData });
+});
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Web server listening on http://localhost:${port}`);
+});
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Received Data</title>
+</head>
+<body>
+  <h1>Received Data:</h1>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% data.forEach(function(row) { %>
+        <tr>
+          <td><%= row.FirstName %></td>
+          <td><%= row.LastName %></td>
+          <td><%= row.Email %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</body>
+</html>
+
+
+
