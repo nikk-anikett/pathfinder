@@ -152,3 +152,59 @@ app.get('/', (req, res) => {
 app.get('/data', (req, res) => {
   res.json(receivedData);
 });
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fetch Data</title>
+</head>
+<body>
+  <h1>Data Viewer</h1>
+  <button onclick="fetchData('database1')">Fetch Data from Database 1</button>
+  <button onclick="fetchData('database2')">Fetch Data from Database 2</button>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody id="data">
+      <!-- Data will be displayed here dynamically -->
+    </tbody>
+  </table>
+
+  <script>
+    let currentDatabase = 'database1';
+
+    function fetchData(database) {
+      currentDatabase = database;
+      const dataContainer = document.getElementById('data');
+      dataContainer.innerHTML = ''; // Clear previous data
+
+      fetch(`/${database}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${user.FirstName}</td>
+              <td>${user.LastName}</td>
+              <td>${user.Email}</td>
+            `;
+            dataContainer.appendChild(row);
+          });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Fetch data initially and refresh every 5 seconds
+    fetchData(currentDatabase);
+    setInterval(() => {
+      fetchData(currentDatabase);
+    }, 5000); // 5000 milliseconds = 5 seconds
+  </script>
+</body>
+</html>
