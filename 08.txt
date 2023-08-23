@@ -211,3 +211,122 @@ namespace WindowsFormsApp
 </body>
 </html>
 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Play/Stop Music</title>
+</head>
+<body>
+    <h1>Play/Stop Music Example</h1>
+    <audio id="audio" src="/CLICK.mp3" preload="auto" loop></audio>
+    <label for="playCheckbox">Play Music:</label>
+    <input type="checkbox" id="playCheckbox">
+    <br>
+    <label for="stopCheckbox">Stop Music:</label>
+    <input type="checkbox" id="stopCheckbox">
+    
+    <script>
+        var audioElement = document.getElementById("audio");
+        var playCheckbox = document.getElementById("playCheckbox");
+        var stopCheckbox = document.getElementById("stopCheckbox");
+        
+        // Load checkbox state from localStorage
+        var playChecked = localStorage.getItem('playChecked') === 'true';
+        playCheckbox.checked = playChecked;
+
+        function updatePlayStatus() {
+            var x = 2; // Set x to 2 (even)
+            
+            if (playCheckbox.checked && !stopCheckbox.checked) {
+                if (x % 2 === 0) {
+                    audioElement.play();
+                } else {
+                    audioElement.pause();
+                }
+            } else {
+                audioElement.pause();
+            }
+            
+            setTimeout(updatePlayStatus, 2000); // Update every 2 seconds
+        }
+
+        updatePlayStatus(); // Start the update function on page load
+
+        // Save checkbox state to localStorage when the checkbox changes
+        playCheckbox.addEventListener("change", function() {
+            localStorage.setItem('playChecked', playCheckbox.checked);
+        });
+        stopCheckbox.addEventListener("change", function() {
+            localStorage.setItem('stopChecked', stopCheckbox.checked);
+        });
+    </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Play/Stop Music</title>
+</head>
+<body>
+    <h1>Play/Stop Music Example</h1>
+    <audio id="audio" src="/CLICK.mp3" preload="auto" loop></audio>
+    <label for="playCheckbox">Play Music:</label>
+    <input type="checkbox" id="playCheckbox">
+    <br>
+    <label for="stopCheckbox">Stop Music:</label>
+    <input type="checkbox" id="stopCheckbox">
+    
+    <script>
+        var audioElement = document.getElementById("audio");
+        var playCheckbox = document.getElementById("playCheckbox");
+        var stopCheckbox = document.getElementById("stopCheckbox");
+        
+        // Load checkbox states from localStorage
+        var playChecked = localStorage.getItem('playChecked') === 'true';
+        var stopChecked = localStorage.getItem('stopChecked') === 'true';
+        playCheckbox.checked = playChecked;
+        stopCheckbox.checked = stopChecked;
+
+        function updatePlayStatus() {
+            var x = 2; // Set x to 2 (even)
+            
+            if (playCheckbox.checked && !stopCheckbox.checked) {
+                if (x % 2 === 0) {
+                    audioElement.play();
+                } else {
+                    audioElement.pause();
+                }
+            } else {
+                audioElement.pause();
+            }
+            
+            setTimeout(updatePlayStatus, 2000); // Update every 2 seconds
+        }
+
+        updatePlayStatus(); // Start the update function on page load
+
+        // Event listeners for the checkboxes
+        playCheckbox.addEventListener("change", function() {
+            localStorage.setItem('playChecked', playCheckbox.checked);
+            
+            if (playCheckbox.checked) {
+                stopCheckbox.checked = false;
+            }
+        });
+        
+        stopCheckbox.addEventListener("change", function() {
+            localStorage.setItem('stopChecked', stopCheckbox.checked);
+            
+            if (stopCheckbox.checked) {
+                playCheckbox.checked = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
