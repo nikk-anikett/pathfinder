@@ -329,4 +329,125 @@ namespace WindowsFormsApp
 </html>
 
 
+var checkManual = true;
+fetchData('database1');
+
+var audioElement = document.getElementById("audio");
+var playCheckbox = document.getElementById("playCheckbox");
+var stopCheckbox = document.getElementById("stopCheckbox");
+
+// Load checkbox state from localStorage
+var playChecked = localStorage.getItem('playChecked') === 'true';
+var stopChecked = localStorage.getItem('stopChecked') === 'false';
+playCheckbox.checked = playChecked;
+stopCheckbox.checked = stopChecked;
+
+
+   function updatePlayStatus() {
+        if (playCheckbox.checked && !stopCheckbox.checked) {
+          audioElement.play();
+        }else{
+          audioElement.pause();
+        }
+        // setTimeout(updatePlayStatus, 1000); // Update every 2 seconds
+    }
+
+playCheckbox.addEventListener("change", function() {
+    localStorage.setItem('playChecked', playCheckbox.checked);
+    if (playCheckbox.checked) {
+        stopCheckbox.checked = false;
+        // audioElement.play();
+    }
+});
+stopCheckbox.addEventListener("change", function() {
+    localStorage.setItem('stopChecked', stopCheckbox.checked);
+    if (stopCheckbox.checked) {
+        playCheckbox.checked = false;
+        // audioElement.pause();
+    }
+});
+
+// Perform operation in Manual
+
+function btnFunc_for_Manual(){
+  let currentDatabase = 'database1';  
+  if(checkManual == true){
+    fetchData('database2');
+    document.getElementById('myBtn').innerHTML='Manual OFF';
+    checkManual = false;
+  }else{
+    fetchData('database1');
+    document.getElementById('myBtn').innerHTML='Manual ON';
+    checkManual = true;
+  }
+}
+
+// Perform Operation In Sound
+
+/// Help to design html element
+
+// ...
+
+function updateTable(data) {
+    const tableBody = document.getElementById('data');
+    let tableHTML = '';
+    var playSound = false; // Track whether to play sound
+
+    data.forEach((row) => {
+        var varFirstName;
+        var varLastName;
+        var varAge;
+        var varNow;
+
+        if (row.Now > 0) {
+            playSound = true; // Set to true if any row has Now > 0
+        }
+
+        tableHTML += `<tr>
+                        <td class="${varFirstName}">${row.FirstName}</td>
+                        <td class="${varLastName}">${row.LastName}</td>
+                        <td class="${varAge}">${row.Age}</td>
+                        <td class="${varNow}">${row.Now}</td>
+                    </tr>`;
+    });
+
+    tableBody.innerHTML = tableHTML;
+
+    // Update audio playback status based on playSound
+    if (playSound) {
+        audioElement.play(); // Play music
+    } else {
+        audioElement.pause(); // Pause music
+    }
+}
+
+// ...
+
+
+
+
+// Fetch data from server 
+
+
+function fetchData(database) {
+  currentDatabase = database;
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      const data = JSON.parse(xhr.responseText);
+      updateTable(data);
+    }
+  };
+  xhr.open('GET', `/${database}`, true);
+  xhr.send();
+}
+
+
+// Fetch data initially and refresh every 2 seconds
+
+fetchData(currentDatabase);
+setInterval(() => {
+  fetchData(currentDatabase);
+}, 2000); // 2000 milliseconds = 2 seconds 
+
 
