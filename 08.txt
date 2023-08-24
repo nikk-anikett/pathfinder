@@ -451,3 +451,97 @@ setInterval(() => {
 }, 2000); // 2000 milliseconds = 2 seconds 
 
 
+var checkManual = true;
+fetchData('database1');
+
+var audioElement = document.getElementById("audio");
+var playCheckbox = document.getElementById("playCheckbox");
+var stopCheckbox = document.getElementById("stopCheckbox");
+var showTableButton = document.getElementById("showTableButton"); // Get the button
+var dataTable = document.getElementById("dataTable"); // Get the table
+
+// Load checkbox state from localStorage
+var playChecked = localStorage.getItem('playChecked') === 'true';
+playCheckbox.checked = playChecked;
+
+// Function to simulate a click on the playCheckbox
+function simulatePlayClick() {
+    playCheckbox.click();
+}
+
+// Simulate a click when the page loads or refreshes
+window.addEventListener('load', simulatePlayClick);
+
+function updatePlayStatus() {
+    if (playCheckbox.checked && !stopCheckbox.checked) {
+        audioElement.play();
+    } else {
+        audioElement.pause();
+    }
+}
+
+playCheckbox.addEventListener("change", function() {
+    localStorage.setItem('playChecked', playCheckbox.checked);
+    if (playCheckbox.checked) {
+        stopCheckbox.checked = false;
+        updatePlayStatus();
+    }
+});
+
+stopCheckbox.addEventListener("change", function() {
+    localStorage.setItem('stopChecked', stopCheckbox.checked);
+    if (stopCheckbox.checked) {
+        playCheckbox.checked = false;
+        updatePlayStatus();
+    }
+});
+
+// ...
+
+// Show or hide the table based on button click
+showTableButton.addEventListener("click", function() {
+    dataTable.style.display = "table"; // Show the table
+    fetchData(currentDatabase); // Fetch data and update the table
+});
+
+// ...
+
+// Fetch data from server 
+
+function fetchData(database) {
+    currentDatabase = database;
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            updateTable(data);
+        }
+    };
+    xhr.open('GET', `/${database}`, true);
+    xhr.send();
+}
+
+// Function to update the table with fetched data
+function updateTable(data) {
+    const tableBody = document.getElementById('data');
+    let tableHTML = '';
+
+    data.forEach((row) => {
+        tableHTML += `<tr>
+                        <td>${row.FirstName}</td>
+                        <td>${row.LastName}</td>
+                        <td>${row.Age}</td>
+                        <td>${row.Now}</td>
+                      </tr>`;
+    });
+
+    tableBody.innerHTML = tableHTML;
+}
+
+// Fetch data initially and refresh every 2 seconds
+// Include the updatePlayStatus() function to keep audio playback updated
+fetchData(currentDatabase);
+setInterval(() => {
+    fetchData(currentDatabase);
+    updatePlayStatus();
+}, 2000); // 2000 milliseconds = 2 seconds
