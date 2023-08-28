@@ -1,7 +1,7 @@
 
-var audioElement = document.getElementById("audio");
-var playCheckbox = document.getElementById("playCheckbox");
-var stopCheckbox = document.getElementById("stopCheckbox");
+// var audioElement = document.getElementById("audio");
+// var playCheckbox = document.getElementById("playCheckbox");
+// var stopCheckbox = document.getElementById("stopCheckbox");
 var checkManual = true;
 var currentDatabase = 'database1';
 
@@ -106,41 +106,6 @@ function updateTable(data) {
     // ... (Rest of the code remains the same)
 }
 
-// Function to update row visibility based on name click state
-function updateRowVisibility(data, index) {
-    const row = document.querySelector(`[data-row-index="${index}"]`).parentNode;
-    const nextRows = getNextRows(row);
-    const show = isNameClicked(index);
-
-    if (show) {
-        nextRows.forEach(row => {
-            row.classList.remove('hidden');
-        });
-    } else {
-        nextRows.forEach(row => {
-            row.classList.add('hidden');
-        });
-    }
-}
-
-// Get all the rows following the given row
-function getNextRows(row) {
-    const rows = Array.from(row.parentNode.children);
-    const rowIndex = rows.indexOf(row);
-    return rows.slice(rowIndex + 1);
-}
-
-// Helper function to toggle name click state
-const nameClickState = {}; // To keep track of name click states
-
-function toggleNameClickState(index) {
-    nameClickState[index] = !nameClickState[index];
-}
-
-// Helper function to check name click state
-function isNameClicked(index) {
-    return nameClickState[index] || false;
-}
 
 // Play music automatically if row.Now is greater than 0
 document.addEventListener("DOMContentLoaded", function() {

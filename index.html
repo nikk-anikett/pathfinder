@@ -89,104 +89,79 @@
 </html>
 
 
+<body> <hi style="text-align: center;">Database Table</h1>
+
+<table id="dataTable" border="1" data-query-"default_query" class="table-bordered"> <thead>
+
+<tr style="text-align: center;">
+
+<th>FirstName</th> <th>LastName</th>
+
+<th>Email</th>
+
+</tr>
+
+</thead>
+
+<tbody Id="tableBody"></tbody>
+
+</table> <p id="demo"></p>
+
+<script>
+
+function updateTable(data)
+
+
+const tableBody = document.getElementById('tableBody');
+
+let tableHTML="";
+
+data.forEach((row) => { tableHTML+ "<tr>
+
+<td>$(row.FirstName)</td> <td>$[row.LastName)</td>
+
+<td>$(row.Email)</td>
+
+</tr>';
+
+tableBody.innerHTML = tableHTML;
+function fetchData() { const xhr new XMLHttpRequest();
+
+xhr.onreadystatechan…ANIKET: receivedData = [];
+
+server.on('message', (msg, rinfo) -> ( const jsonData asg.toString("utfa');
+
+const data0b) N.parse(jsonData);
+
+receivedData.push(dataobj); 14 console.log('Received data:', receivedData);
+
+
+server.on('listening', ()-> (
+
+const address server.address(); console.log("UDP server listening on $(address.address):$(address.port)");
+
+server.on('error', (err) -> { console.error('UDP server error:', err); server.close();
+
+}); app.use(bodyParser.json());
+
+app.use(bodyParser.urlencoded(( extended: false }));
+const PORT 16000; 
+server.bind(PORT);
+
+app.get("/",(req, res) ->{ res.sendFile(dirname + "/index.html');
 
 
 
-// const express = require('express');
-// const app = express();
-// const PORT = 3000;
-
-// // Sample data to send to the frontend
-// const data = [
-//   { id: 1, name: 'John Doe', age: 30, email: 'john@example.com' },
-//   { id: 2, name: 'Jane Smith', age: 28, email: 'jane@example.com' },
-//   { id: 3, name: 'Bob Johnson', age: 35, email: 'bob@example.com' },
-// ];
-
-// app.use(express.static('public'));
-
-// // Endpoint to send the data to the frontend
-// app.get('/getData', (req, res) => {
-//   res.json(data);
-// });
-
-// app.listen(PORT, () => {
-//   console.log(`Server listening on port ${PORT}`);
-// });
 
 
 
 
+ app.get('/getData', (req, res) -> {
 
+ res.jsan (receivedData[0]);
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Table Webpage</title>
-  <style>
-    /* Add some basic styling to the table */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
+const part 3000; app.listen(port, ()-> (
 
-    th, td {
-      border: 1px solid black;
-      padding: 8px;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <h1>Data Table Webpage</h1>
+console.log("Web server listening In http://localhost:$(port)
 
-  <!-- Add an empty table to display the data -->
-  <table id="dataTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-
-  <script>
-    // Function to update the table with fetched data
-    function updateTable(data) {
-      const tableBody = document.getElementById('tableBody');
-      let tableHTML = '';
-      data.forEach((row) => {
-        tableHTML += `<tr>
-                        <td>${row.id}</td>
-                        <td>${row.name}</td>
-                        <td>${row.age}</td>
-                        <td>${row.email}</td>
-                      </tr>`;
-      });
-      tableBody.innerHTML = tableHTML;
-    }
-
-    // Function to fetch data from the server and update the table
-    function fetchData() {
-      const xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          updateTable(data);
-        }
-      };
-      // Send a request to the backend server to get the data
-      xhr.open('GET', '/getData', true);
-      xhr.send();
-    }
-
-    // Call fetchData() initially to load data on page load
-    fetchData();
-  </script>
-</body>
-</html>
+});
