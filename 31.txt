@@ -1,0 +1,135 @@
+
+var checkManual = true;
+fetchData('database1');
+
+var audioElement = document.getElementById("audio");
+var playCheckbox = document.getElementById("playCheckbox");
+var stopCheckbox = document.getElementById("stopCheckbox");
+var showTableButton = document.getElementById("showTableButton"); // Get the button
+var dataTable = document.getElementById("dataTable"); // Get the table
+
+// ...
+
+// Function to simulate a click on the playCheckbox
+// ...
+
+
+
+
+
+
+// Function to update the table with fetched data
+
+function btnFunc_for_Manual(){
+    let currentDatabase = 'database1';  
+    if(checkManual == true){
+      fetchData('database2');
+      document.getElementById('myBtn').innerHTML='Manual OFF';
+      checkManual = false;
+    }else{
+      fetchData('database1');
+      document.getElementById('myBtn').innerHTML='Manual ON';
+      checkManual = true;
+    }
+  }
+// Load checkbox state from localStorage
+
+// ...
+
+
+let allRowsExpanded = false;
+
+// Function to toggle the visibility of all rows
+function toggleAllRows() {
+    const rows = document.querySelectorAll('tr[data-groupcode]');
+    rows.forEach((row) => {
+        const groupCode = row.getAttribute('data-groupcode');
+        visibilityState[groupCode] = allRowsExpanded;
+        updateRowVisibility(groupCode);
+    });
+    allRowsExpanded = !allRowsExpanded; // Toggle the state
+}
+
+// Add an event listener for the Expand All button
+const expandAllButton = document.getElementById('expandAllButton');
+expandAllButton.addEventListener('click', toggleAllRows);
+
+// Show or hide the table based on button click
+
+
+showTableButton.addEventListener("click", function() {
+    dataTable.style.display = "table"; // Show the table
+    fetchData(currentDatabase); // Fetch data and update the table
+});
+
+// ...
+
+// Fetch data from server const visibilityState = {};
+// Maintain a state object to keep track of visibility
+const visibilityState = {};
+
+function fetchData(database) {
+    currentDatabase = database;
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            updateTable(data);
+        }
+    };
+    xhr.open('GET', `/${database}`, true);
+    xhr.send();
+}
+
+// Function to update the table with fetched data
+function updateTable(data) {
+    const tableBody = document.getElementById('data');
+    let tableHTML = '';
+
+    data.forEach((row) => {
+        tableHTML += `<tr class="${row.Expirydate === '0' ? 'group-visible' : 'group-hidden'}" data-groupcode="${row.Groupcode}">
+                        <td class="name">${row.FirstName}</td>
+                        <td>${row.Symbol}</td>
+                        <td>${row.Groupcode}</td>
+                        <td>${row.Expirydate}</td>
+                        <td>${row.Age}</td>
+                        <td>${row.Now}</td>
+                    </tr>`;
+    });
+
+    tableBody.innerHTML = tableHTML;
+
+    const rows = document.querySelectorAll('tr[data-groupcode]');
+    rows.forEach((row) => {
+        const groupCode = row.getAttribute('data-groupcode');
+        
+        if (!(groupCode in visibilityState)) {
+            visibilityState[groupCode] = false;
+        }
+
+        row.addEventListener('click', () => {
+            visibilityState[groupCode] = !visibilityState[groupCode];
+            updateRowVisibility(groupCode);
+        });
+
+        updateRowVisibility(groupCode);
+    });
+}
+
+function updateRowVisibility(groupCode) {
+    const rowsToToggle = document.querySelectorAll(`tr[data-groupcode="${groupCode}"]:not(.group-visible)`);
+
+    rowsToToggle.forEach((toggleRow) => {
+        toggleRow.style.display = visibilityState[groupCode] ? 'table-row' : 'none';
+    });
+}
+
+// Include the updatePlayStatus() function to keep audio playback updated
+fetchData(currentDatabase);
+setInterval(() => {
+    fetchData(currentDatabase);
+    updatePlayStatus();
+}, 2000); 
+
+
+
