@@ -131,5 +131,62 @@ setInterval(() => {
     updatePlayStatus();
 }, 2000); 
 
+import React, { useState, useEffect } from 'react';
+
+function MyTableComponent() {
+  const [checkManual, setCheckManual] = useState(true);
+  const [currentDatabase, setCurrentDatabase] = useState('database1');
+  const [data, setData] = useState([]);
+  const [showTable, setShowTable] = useState(false);
+
+  useEffect(() => {
+    fetchData(currentDatabase);
+
+    const dataUpdateInterval = setInterval(() => {
+      fetchData(currentDatabase);
+    }, 2000);
+
+    return () => {
+      clearInterval(dataUpdateInterval);
+    };
+  }, [currentDatabase]);
+
+  const fetchData = (database) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        setData(response);
+        updateTable(response);
+      }
+    };
+    xhr.open('GET', `/${database}`, true);
+    xhr.send();
+  };
+
+  const updateTable = (data) => {
+    // Implement this function to update your table
+  };
+
+  const toggleManualMode = () => {
+    if (checkManual) {
+      setCurrentDatabase('database2');
+    } else {
+      setCurrentDatabase('database1');
+    }
+    setCheckManual(!checkManual);
+  };
+
+  return (
+    <div>
+      <button onClick={toggleManualMode}>
+        {checkManual ? 'Manual ON' : 'Manual OFF'}
+      </button>
+      {showTable && <table id="data">{/* Render your table data here */}</table>}
+    </div>
+  );
+}
+
+export default MyTableComponent;
 
 
