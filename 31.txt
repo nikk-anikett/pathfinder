@@ -271,3 +271,128 @@ function MyTableComponent() {
 
 
 
+
+
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json()); // Parse JSON-encoded request body
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded form data
+
+app.post('/example', (req, res) => {
+  const data = req.body;
+  // Use the parsed data from the request body
+  res.json(data);
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+
+
+
+const express = require('express');
+const mysql = require('mysql');
+
+const app = express();
+const port = 3000;
+
+// Create a MySQL connection
+const db = mysql.createConnection({
+  host: 'your_database_host',
+  user: 'your_database_user',
+  password: 'your_database_password',
+  database: 'your_database_name',
+});
+
+// Connect to the MySQL database
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
+  console.log('Connected to MySQL');
+});
+
+// Endpoint to fetch data from the database and store it in an array
+app.get('/fetch-data', (req, res) => {
+  // Your SQL query to fetch data from the database
+  const sqlQuery = 'SELECT * FROM your_table_name';
+
+  db.query(sqlQuery, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Failed to fetch data' });
+    } else {
+      const dataArray = results; // Assuming your data is an array of objects
+
+      // You can now use the dataArray for further processing or send it as a response
+      res.json(dataArray);
+    }
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
+
+const express = require("express");
+const cors = require("cors");
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
+const mysql = require("mysql2");
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// Configure your MySQL database for session storage
+const sessionStoreDB1 = new MySQLStore({
+  host: "db1-host", // Replace with your DB1 host
+  user: "db1-user", // DB1 user for sessions
+  password: "db1-password", // DB1 password for sessions
+  database: "db1-session", // Your DB1 session database
+});
+
+const sessionStoreDB2 = new MySQLStore({
+  host: "db2-host", // Replace with your DB2 host
+  user: "db2-user", // DB2 user for sessions
+  password: "db2-password", // DB2 password for sessions
+  database: "db2-session", // Your DB2 session database
+});
+
+app.use(
+  session({
+    secret: "your-secret-key", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStoreDB1,
+    cookie: {
+      maxAge: 3600000, // Session timeout in milliseconds (adjust as needed)
+    },
+  })
+);
+
+// Define your routes
+
+// Route to set a session variable (example)
+app.get("/setSessionVar", (req, res) => {
+  req.session.myData = "This is a session variable";
+  res.send("Session variable set.");
+});
+
+// Route to retrieve a session variable (example)
+app.get("/getSessionVar", (req, res) => {
+  const myData = req.session.myData;
+  res.send(`Session variable: ${myData}`);
+});
+
+// ... (the rest of your routes)
+
+app.listen(8000, () => {
+  console.log(`Server is running on port 8000.`);
+});
