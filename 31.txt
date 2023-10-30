@@ -4,7 +4,10 @@ import axios from "axios";
 function App() {
   const [data1, setData1] = useState([]);
   const [data2, setData2] = useState([]);
-  const [currentDatabase, setCurrentDatabase] = useState("database1");
+  const [currentDatabase, setCurrentDatabase] = useState(() => {
+    const storedDatabase = localStorage.getItem("selectedDatabase");
+    return storedDatabase || "database1";
+  });
 
   const fetchData = async (database, setData) => {
     try {
@@ -30,8 +33,10 @@ function App() {
 
   const toggleDatabase = () => {
     if (currentDatabase === "database1") {
+      localStorage.setItem("selectedDatabase", "database2");
       setCurrentDatabase("database2");
     } else {
+      localStorage.setItem("selectedDatabase", "database1");
       setCurrentDatabase("database1");
     }
   };
