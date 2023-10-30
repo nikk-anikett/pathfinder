@@ -6,26 +6,23 @@ function App() {
   const [data2, setData2] = useState([]);
   const [currentDatabase, setCurrentDatabase] = useState("database1");
 
-  const fetchData = async (database) => {
+  const fetchData = async (database, setData) => {
     try {
       const response = await axios.get(`http://localhost:8000/${database}`);
       const data = response.data;
-      if (database === "database1") {
-        setData1(data);
-      } else if (database === "database2") {
-        setData2(data);
-      }
+      setData(data);
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    fetchData(currentDatabase);
+    fetchData(currentDatabase, setCurrentDatabase === "database1" ? setData1 : setData2);
 
-    // Fetch data every 5 seconds
+    // Fetch data for both databases every 5 seconds
     const interval = setInterval(() => {
-      fetchData(currentDatabase);
+      fetchData("database1", setData1);
+      fetchData("database2", setData2);
     }, 5000);
 
     return () => clearInterval(interval);
