@@ -1,398 +1,71 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-var checkManual = true;
-fetchData('database1');
+function App() {
+  const [data1, setData1] = useState([]);
+  const [data2, setData2] = useState([]);
+  const [currentDatabase, setCurrentDatabase] = useState("database1");
 
-var audioElement = document.getElementById("audio");
-var playCheckbox = document.getElementById("playCheckbox");
-var stopCheckbox = document.getElementById("stopCheckbox");
-var showTableButton = document.getElementById("showTableButton"); // Get the button
-var dataTable = document.getElementById("dataTable"); // Get the table
-
-// ...
-
-// Function to simulate a click on the playCheckbox
-// ...
-
-
-
-
-
-
-// Function to update the table with fetched data
-
-function btnFunc_for_Manual(){
-    let currentDatabase = 'database1';  
-    if(checkManual == true){
-      fetchData('database2');
-      document.getElementById('myBtn').innerHTML='Manual OFF';
-      checkManual = false;
-    }else{
-      fetchData('database1');
-      document.getElementById('myBtn').innerHTML='Manual ON';
-      checkManual = true;
+  const fetchData = async (database) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/${database}`);
+      const data = response.data;
+      if (database === "database1") {
+        setData1(data);
+      } else if (database === "database2") {
+        setData2(data);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  }
-// Load checkbox state from localStorage
-
-// ...
-
-
-let allRowsExpanded = false;
-
-// Function to toggle the visibility of all rows
-function toggleAllRows() {
-    const rows = document.querySelectorAll('tr[data-groupcode]');
-    rows.forEach((row) => {
-        const groupCode = row.getAttribute('data-groupcode');
-        visibilityState[groupCode] = allRowsExpanded;
-        updateRowVisibility(groupCode);
-    });
-    allRowsExpanded = !allRowsExpanded; // Toggle the state
-}
-
-// Add an event listener for the Expand All button
-const expandAllButton = document.getElementById('expandAllButton');
-expandAllButton.addEventListener('click', toggleAllRows);
-
-// Show or hide the table based on button click
-
-
-showTableButton.addEventListener("click", function() {
-    dataTable.style.display = "table"; // Show the table
-    fetchData(currentDatabase); // Fetch data and update the table
-});
-
-// ...
-
-// Fetch data from server const visibilityState = {};
-// Maintain a state object to keep track of visibility
-const visibilityState = {};
-
-function fetchData(database) {
-    currentDatabase = database;
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const data = JSON.parse(xhr.responseText);
-            updateTable(data);
-        }
-    };
-    xhr.open('GET', `/${database}`, true);
-    xhr.send();
-}
-
-// Function to update the table with fetched data
-function updateTable(data) {
-    const tableBody = document.getElementById('data');
-    let tableHTML = '';
-
-    data.forEach((row) => {
-        tableHTML += `<tr class="${row.Expirydate === '0' ? 'group-visible' : 'group-hidden'}" data-groupcode="${row.Groupcode}">
-                        <td class="name">${row.FirstName}</td>
-                        <td>${row.Symbol}</td>
-                        <td>${row.Groupcode}</td>
-                        <td>${row.Expirydate}</td>
-                        <td>${row.Age}</td>
-                        <td>${row.Now}</td>
-                    </tr>`;
-    });
-
-    tableBody.innerHTML = tableHTML;
-
-    const rows = document.querySelectorAll('tr[data-groupcode]');
-    rows.forEach((row) => {
-        const groupCode = row.getAttribute('data-groupcode');
-        
-        if (!(groupCode in visibilityState)) {
-            visibilityState[groupCode] = false;
-        }
-
-        row.addEventListener('click', () => {
-            visibilityState[groupCode] = !visibilityState[groupCode];
-            updateRowVisibility(groupCode);
-        });
-
-        updateRowVisibility(groupCode);
-    });
-}
-
-function updateRowVisibility(groupCode) {
-    const rowsToToggle = document.querySelectorAll(`tr[data-groupcode="${groupCode}"]:not(.group-visible)`);
-
-    rowsToToggle.forEach((toggleRow) => {
-        toggleRow.style.display = visibilityState[groupCode] ? 'table-row' : 'none';
-    });
-}
-
-// Include the updatePlayStatus() function to keep audio playback updated
-fetchData(currentDatabase);
-setInterval(() => {
-    fetchData(currentDatabase);
-    updatePlayStatus();
-}, 2000); 
-
-import React, { useState, useEffect } from 'react';
-
-function MyTableComponent() {
-  const [checkManual, setCheckManual] = useState(true);
-  const [currentDatabase, setCurrentDatabase] = useState('database1');
-  const [data, setData] = useState([]);
-  const [showTable, setShowTable] = useState(false);
+  };
 
   useEffect(() => {
     fetchData(currentDatabase);
 
-    const dataUpdateInterval = setInterval(() => {
+    // Fetch data every 5 seconds
+    const interval = setInterval(() => {
       fetchData(currentDatabase);
-    }, 2000);
+    }, 5000);
 
-    return () => {
-      clearInterval(dataUpdateInterval);
-    };
+    return () => clearInterval(interval);
   }, [currentDatabase]);
 
-  const fetchData = (database) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
-        setData(response);
-        updateTable(response);
-      }
-    };
-    xhr.open('GET', `/${database}`, true);
-    xhr.send();
-  };
-
-  const updateTable = (data) => {
-    // Implement this function to update your table
-  };
-
-  const toggleManualMode = () => {
-    if (checkManual) {
-      setCurrentDatabase('database2');
+  const toggleDatabase = () => {
+    if (currentDatabase === "database1") {
+      setCurrentDatabase("database2");
     } else {
-      setCurrentDatabase('database1');
+      setCurrentDatabase("database1");
     }
-    setCheckManual(!checkManual);
   };
+
+  const currentData = currentDatabase === "database1" ? data1 : data2;
 
   return (
-    <div>
-      <button onClick={toggleManualMode}>
-        {checkManual ? 'Manual ON' : 'Manual OFF'}
+    <div className="App">
+      <button onClick={toggleDatabase}>
+        Switch Database: {currentDatabase === "database1" ? "2" : "1"}
       </button>
-      {showTable && <table id="data">{/* Render your table data here */}</table>}
+
+      <table border="1">
+        <tbody>
+          {currentData.map((row) => (
+            <tr key={row.ClientName}>
+              <td>{row.ClientName}</td>
+              <td>{row.Symbol}</td>
+              <td>{row.Expirydate}</td>
+              <td>{row.LTP}</td>
+              <td>{row.Sys_Exp_Intra}</td>
+              <td>{row.Sys_Exp_Carry}</td>
+              <td>{row.Sys_Exp_Net}</td>
+              <td>{row.Exec_Exp_Net}</td>
+              <td>{row.ExpLimit_In_Cr}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-export default MyTableComponent;
-
-
-import React, { useState, useEffect } from 'react';
-
-function MyTableComponent() {
-  const [checkManual, setCheckManual] = useState(true);
-  const [currentDatabase, setCurrentDatabase] = useState('database1');
-  const [data, setData] = useState([]);
-  const [showTable, setShowTable] = useState(false);
-
-  useEffect(() => {
-    // Fetch data when the component mounts
-    fetchData(currentDatabase);
-
-    // Schedule periodic data updates
-    const dataUpdateInterval = setInterval(() => {
-      fetchData(currentDatabase);
-    }, 2000);
-
-    // Clear the data update interval when the component unmounts
-    return () => {
-      clearInterval(dataUpdateInterval);
-    };
-  }, [currentDatabase]);
-
-  const fetchData = (database) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
-        setData(response);
-        updateTable(response);
-      }
-    };
-    xhr.open('GET', `/${database}`, true);
-    xhr.send();
-  };
-
-  const updateTable = (data) => {
-    const tableBody = document.getElementById('data');
-    let tableHTML = '';
-
-    data.forEach((row) => {
-      tableHTML += `<tr>
-                    <td class="name">${row.FirstName}</td>
-                    <td>${row.Symbol}</td>
-                    <td>${row.Groupcode}</td>
-                    <td>${row.Expirydate}</td>
-                    <td>${row.Age}</td>
-                    <td>${row.Now}</td>
-                </tr>`;
-    });
-
-    tableBody.innerHTML = tableHTML;
-  };
-
-  const toggleManualMode = () => {
-    if (checkManual) {
-      setCurrentDatabase('database2');
-      document.getElementById('myBtn').innerHTML = 'Manual OFF';
-    } else {
-      setCurrentDatabase('database1');
-      document.getElementById('myBtn').innerHTML = 'Manual ON';
-    }
-    setCheckManual(!checkManual);
-  };
-
-  return (
-    <div>
-      <button onClick={toggleManualMode}>
-        {checkManual ? 'Manual ON' : 'Manual OFF'}
-      </button>
-      {showTable && (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th
-
-
-
-
-
-
-
-
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-
-app.use(bodyParser.json()); // Parse JSON-encoded request body
-app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded form data
-
-app.post('/example', (req, res) => {
-  const data = req.body;
-  // Use the parsed data from the request body
-  res.json(data);
-});
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
-
-
-
-const express = require('express');
-const mysql = require('mysql');
-
-const app = express();
-const port = 3000;
-
-// Create a MySQL connection
-const db = mysql.createConnection({
-  host: 'your_database_host',
-  user: 'your_database_user',
-  password: 'your_database_password',
-  database: 'your_database_name',
-});
-
-// Connect to the MySQL database
-db.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log('Connected to MySQL');
-});
-
-// Endpoint to fetch data from the database and store it in an array
-app.get('/fetch-data', (req, res) => {
-  // Your SQL query to fetch data from the database
-  const sqlQuery = 'SELECT * FROM your_table_name';
-
-  db.query(sqlQuery, (err, results) => {
-    if (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Failed to fetch data' });
-    } else {
-      const dataArray = results; // Assuming your data is an array of objects
-
-      // You can now use the dataArray for further processing or send it as a response
-      res.json(dataArray);
-    }
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-
-
-const express = require("express");
-const cors = require("cors");
-const session = require("express-session");
-const MySQLStore = require("express-mysql-session")(session);
-const mysql = require("mysql2");
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-// Configure your MySQL database for session storage
-const sessionStoreDB1 = new MySQLStore({
-  host: "db1-host", // Replace with your DB1 host
-  user: "db1-user", // DB1 user for sessions
-  password: "db1-password", // DB1 password for sessions
-  database: "db1-session", // Your DB1 session database
-});
-
-const sessionStoreDB2 = new MySQLStore({
-  host: "db2-host", // Replace with your DB2 host
-  user: "db2-user", // DB2 user for sessions
-  password: "db2-password", // DB2 password for sessions
-  database: "db2-session", // Your DB2 session database
-});
-
-app.use(
-  session({
-    secret: "your-secret-key", // Replace with a strong secret key
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStoreDB1,
-    cookie: {
-      maxAge: 3600000, // Session timeout in milliseconds (adjust as needed)
-    },
-  })
-);
-
-// Define your routes
-
-// Route to set a session variable (example)
-app.get("/setSessionVar", (req, res) => {
-  req.session.myData = "This is a session variable";
-  res.send("Session variable set.");
-});
-
-// Route to retrieve a session variable (example)
-app.get("/getSessionVar", (req, res) => {
-  const myData = req.session.myData;
-  res.send(`Session variable: ${myData}`);
-});
-
-// ... (the rest of your routes)
-
-app.listen(8000, () => {
-  console.log(`Server is running on port 8000.`);
-});
+export default App;
