@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function App() {
-  const [data1, setData1] = useState([]);
-  const [data2, setData2] = useState([]);
-  const [currentDatabase, setCurrentDatabase] = useState(() => {
-    const storedDatabase = localStorage.getItem("selectedDatabase");
-    return storedDatabase || "database1";
-  });
+  const [data, setData] = useState([]);
+  const [currentDatabase, setCurrentDatabase] = useState("database1"); // Track the current database
 
-  const fetchData = async (database, setData) => {
+  const fetchData = async (database) => {
     try {
       const response = await axios.get(`http://localhost:8000/${database}`);
       const data = response.data;
@@ -20,52 +16,35 @@ function App() {
   };
 
   useEffect(() => {
-    fetchData(currentDatabase, setCurrentDatabase === "database1" ? setData1 : setData2);
-
-    // Fetch data for both databases every 5 seconds
+    fetchData(currentDatabase); // Fetch data based on the currentDatabase state
     const interval = setInterval(() => {
-      fetchData("database1", setData1);
-      fetchData("database2", setData2);
+      fetchData(currentDatabase);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentDatabase]);
+  }, [currentDatabase]); // Re-run the effect when the currentDatabase changes
 
-  const toggleDatabase = () => {
-    if (currentDatabase === "database1") {
-      localStorage.setItem("selectedDatabase", "database2");
-      setCurrentDatabase("database2");
-    } else {
-      localStorage.setItem("selectedDatabase", "database1");
-      setCurrentDatabase("database1");
-    }
+  // Function to switch between databases
+  const switchDatabase = () => {
+    const newDatabase = currentDatabase === "database1" ? "database2" : "database1";
+    setCurrentDatabase(newDatabase);
   };
-
-  const currentData = currentDatabase === "database1" ? data1 : data2;
 
   return (
     <div className="App">
-      <button onClick={toggleDatabase}>
-        Switch Database: {currentDatabase === "database1" ? "2" : "1"}
-      </button>
-
-      <table border="1">
-        <tbody>
-          {currentData.map((row) => (
-            <tr key={row.ClientName}>
-              <td>{row.ClientName}</td>
-              <td>{row.Symbol}</td>
-              <td>{row.Expirydate}</td>
-              <td>{row.LTP}</td>
-              <td>{row.Sys_Exp_Intra}</td>
-              <td>{row.Sys_Exp_Carry}</td>
-              <td>{row.Sys_Exp_Net}</td>
-              <td>{row.Exec_Exp_Net}</td>
-              <td>{row.ExpLimit_In_Cr}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <button onClick={switchDatabase}>Switch Database</button>
+      <div>
+        <table border="1">
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.ClientName}>
+                <td>{row.ClientName}</td>
+                {/* Render other fields */}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
