@@ -1,0 +1,122 @@
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const mysql = require("mysql2");
+const ip = require("ip");
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Database Connections
+const poolExpirydateAndExpLimit = mysql.createPool({
+  host: "localhost1",
+  user: "pappu",
+  password: "pappu",
+  waitForConnections: true,
+  connectionLimit: 0,
+  queueLimit: 0,
+});
+
+const poolOsl = mysql.createPool({
+  host: "localhost2",
+  user: "pappu",
+  password: "pappu",
+});
+
+const poolStksManual = mysql.createPool({
+  host: "lh3",
+  user: "pappu",
+  password: "pappu",
+  waitForConnections: true,
+  connectionLimit: 0,
+  queueLimit: 0,
+});
+
+// Queries
+const {
+  IdxSysQuery,
+  IdxExecQuery,
+  StksSysQuery,
+  StksExecQuery,
+  ManualExecQuery,
+} = require("./queries");
+
+// Data Maps
+const LTP_Expirydate = new Map();
+const Exp_LimitInCr = new Map();
+const GroupCode = new Map([
+  ["Marketopper_BANKNIFTY", "1"],
+  ["Marketopper_NIFTY", "2"],
+  // Add more mappings as needed
+]);
+
+// Function to create space between different ClientName rows
+function createSpaceBetweenRows(data) {
+  const newData = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    newData.push(data[i]);
+    if (data[i].ClientName !== data[i + 1].ClientName) {
+      newData.push({
+        ClientName: "",
+        Symbol: "",
+        Expirydate: "",
+        LTP: null,
+        Sys_Exp_Intra: "",
+        Sys_Exp_Carry: "",
+        Sys_Exp_Net: "",
+        Exec_Exp_Net: 0,
+        GroupCode: null,
+        ExpLimit_In_Cr: "",
+      });
+    }
+  }
+  newData.push(data[data.length - 1]);
+  return newData;
+}
+
+// Function to calculate system and execution exposure
+function calculateExposure(IdxSys, StksSys, IdxExec, StksExec, LTP_for_symbols) {
+  const data = [];
+  // Implement your exposure calculation logic here
+  return data;
+}
+
+// Define the route for database1
+app.get("/database1", (req, res) => {
+  const data = calculateExposure(
+    IdxSysQuery, // Define your queries
+    StksSysQuery, // Define your queries
+    IdxExecQuery, // Define your queries
+    StksExecQuery, // Define your queries
+    LTP_Expirydate
+  );
+  res.json(data);
+});
+
+// Define the route for database2
+app.get("/database2", (req, res) => {
+  const data1 = calculateExposure(
+    IdxSysQuery, // Define your queries
+    StksSysQuery, // Define your queries
+    IdxExecQuery, // Define your queries
+    StksExecQuery, // Define your queries
+    LTP_Expirydate
+  );
+
+  const data2 = [];
+  // Implement logic to filter and calculate data for database2
+  // You can access data1 to filter and modify data
+
+  res.json(data2);
+});
+
+// Define a route for the root URL
+app.get("/", (req, res) => {
+  res.json({ message: "dataTable" });
+});
+
+// Start the server
+app.listen(8000, () => {
+  console.log("Server is running on port 8000.");
+});
