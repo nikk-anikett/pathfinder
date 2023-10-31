@@ -135,5 +135,28 @@ showTableButton.addEventListener("click", function () {
   fetchData(currentDatabase); // Fetch data and update the table
 });
 
+var checkManual = true;
+var currentDatabase = localStorage.getItem('currentDatabase') || 'database1';
+
+function btnFunc_for_Manual() {
+  if (checkManual) {
+    currentDatabase = 'database2';
+    document.getElementById('myBtn').innerHTML = 'Manual ON';
+    checkManual = false;
+  } else {
+    currentDatabase = 'database1';
+    document.getElementById('myBtn').innerHTML = 'Manual OFF';
+    checkManual = true;
+  }
+  
+  localStorage.setItem('currentDatabase', currentDatabase);
+  fetchData(currentDatabase);
+}
+
+// Initialize the button text based on the currentDatabase
+document.getElementById('myBtn').innerHTML = checkManual ? 'Manual OFF' : 'Manual ON';
+
+// Initialize and fetch data based on the currentDatabase
+fetchData(currentDatabase);
 
 
