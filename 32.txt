@@ -355,3 +355,35 @@ const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
+
+
+
+
+
+
+
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('This is the restricted web page.');
+});
+
+const allowedIPs = ['192.168.1.100', '203.0.113.0'];
+
+const restrictAccess = (req, res, next) => {
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  if (allowedIPs.includes(clientIP)) {
+    next(); // Allow access
+  } else {
+    res.status(403).send('Access denied. Your IP is not authorized.');
+  }
+};
+
+app.use(restrictAccess);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
