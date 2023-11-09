@@ -393,3 +393,48 @@ app.listen(PORT, () => {
 
 
 https://github.com/sudheerj/javascript-interview-questions
+
+
+const fs = require('fs');
+const path = require('path');
+
+// Directory and file paths
+const dataDir = path.join(__dirname, 'data');
+const csvFilePath = path.join(dataDir, 'data.csv');
+
+// Create the 'data' directory if it doesn't exist
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir);
+}
+
+// Function to create the CSV file and write the initial header if it doesn't exist
+function createCSVFile() {
+  if (!fs.existsSync(csvFilePath)) {
+    const csvHeader = 'Name,Email\n';
+    fs.writeFileSync(csvFilePath, csvHeader, { flag: 'w' });
+  }
+}
+
+// Sample JSON data to append every minute
+const jsonData = [
+  { Name: 'Alice', Email: 'alice@example.com' },
+  { Name: 'Bob', Email: 'bob@example.com' },
+];
+
+// Function to append JSON data to the CSV file
+function appendDataToCSV() {
+  createCSVFile();
+
+  const csvData = jsonData.map((item) => `${item.Name},${item.Email}`).join('\n') + '\n';
+  fs.appendFile(csvFilePath, csvData, (err) => {
+    if (err) {
+      console.error('Error appending data to CSV file:', err);
+    } else {
+      console.log('Data appended to CSV file.');
+    }
+  });
+}
+
+// Append data to the CSV every minute (60000 ms)
+setInterval(appendDataToCSV, 60000);
+
