@@ -313,3 +313,78 @@ class Program
 
 
 
+
+// package.json
+{
+  "name": "my-node-project",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "pkg": {
+    "scripts": "app.js",
+    "assets": ["index.html", "public/**/*"]
+  }
+}
+
+// app.js
+const express = require('express');
+const path = require('path');
+const app = express();
+const port = 3000;
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve the index.html file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
+
+// public/client.js
+console.log('Client-side JavaScript is running!');
+
+
+
+
+
+/* public/style.css */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  color: #007BFF;
+}
+
+
+
+
+
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="public/style.css">
+  <title>Node.js Project</title>
+</head>
+<body>
+  <h1>Hello, Node.js!</h1>
+  <script src="public/client.js"></script>
+</body>
+</html>
+
+
