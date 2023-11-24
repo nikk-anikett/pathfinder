@@ -208,3 +208,108 @@ app.get('/data', (req, res) => {
   </script>
 </body>
 </html>
+
+
+
+using System;
+using System.Data;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        // Assuming you have two DataTables with the specified column names
+        DataTable dt1 = GetFirstDataTable();
+        DataTable dt2 = GetSecondDataTable();
+
+        // Compare the DataTables and store the differences in a third DataTable
+        DataTable diffTable = CompareDataTables(dt1, dt2);
+
+        // Display the differences or use the diffTable as needed
+        DisplayDataTable(diffTable);
+
+        Console.ReadLine();
+    }
+
+    static DataTable CompareDataTables(DataTable dt1, DataTable dt2)
+    {
+        // Create a new DataTable with the same structure
+        DataTable diffTable = dt1.Clone();
+
+        // Compare the two DataTables using LINQ
+        var differences = dt1.AsEnumerable().Except(dt2.AsEnumerable(), DataRowComparer.Default);
+
+        // Copy the differences to the new DataTable
+        foreach (DataRow row in differences)
+        {
+            diffTable.ImportRow(row);
+        }
+
+        return diffTable;
+    }
+
+    static void DisplayDataTable(DataTable table)
+    {
+        Console.WriteLine("Differences:");
+        foreach (DataRow row in table.Rows)
+        {
+            foreach (DataColumn col in table.Columns)
+            {
+                Console.Write($"{col.ColumnName}: {row[col]} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    static DataTable GetFirstDataTable()
+    {
+        // Implement the logic to populate your first DataTable (dt1)
+        // For example:
+        DataTable dt1 = new DataTable();
+        dt1.Columns.Add("machineid");
+        dt1.Columns.Add("symbol");
+        dt1.Columns.Add("exp");
+        dt1.Columns.Add("time");
+        dt1.Columns.Add("work");
+        dt1.Columns.Add("start");
+        dt1.Columns.Add("sig");
+        dt1.Columns.Add("sour");
+        dt1.Columns.Add("uid");
+        dt1.Columns.Add("sys");
+        dt1.Columns.Add("syst");
+
+        // Add sample data
+        dt1.Rows.Add(1, "A", "2022-01-01", "12:00", "Work1", "Start1", "Sig1", "Sour1", 101, "Sys1", "Syst1");
+        dt1.Rows.Add(2, "B", "2022-01-02", "14:00", "Work2", "Start2", "Sig2", "Sour2", 102, "Sys2", "Syst2");
+
+        return dt1;
+    }
+
+    static DataTable GetSecondDataTable()
+    {
+        // Implement the logic to populate your second DataTable (dt2)
+        // For example:
+        DataTable dt2 = new DataTable();
+        dt2.Columns.Add("machineid");
+        dt2.Columns.Add("symbol");
+        dt2.Columns.Add("exp");
+        dt2.Columns.Add("time");
+        dt2.Columns.Add("work");
+        dt2.Columns.Add("start");
+        dt2.Columns.Add("sig");
+        dt2.Columns.Add("sour");
+        dt2.Columns.Add("uid");
+        dt2.Columns.Add("sys");
+        dt2.Columns.Add("syst");
+
+        // Add sample data (making some differences)
+        dt2.Rows.Add(1, "A", "2022-01-01", "12:00", "Work1", "Start1", "Sig1", "Sour1", 101, "Sys1", "Syst1");
+        dt2.Rows.Add(3, "C", "2022-01-03", "16:00", "Work3", "Start3", "Sig3", "Sour3", 103, "Sys3", "Syst3");
+
+        return dt2;
+    }
+}
+
+
+
