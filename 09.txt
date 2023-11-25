@@ -458,5 +458,67 @@ class Program
 
 
 
+using System;
+using System.Data;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        // Assuming you have two DataTables with the specified column names
+        DataTable dt1 = GetFirstDataTable();
+        DataTable dt2 = GetSecondDataTable();
+
+        // Specify the column for comparison (e.g., "uid")
+        string columnToCompare = "uid";
+
+        // Compare the DataTables based on the specified column
+        DataTable diffTable = CompareDataTables(dt1, dt2, columnToCompare);
+
+        // Display the differences or use the diffTable as needed
+        DisplayDataTable(diffTable);
+
+        Console.ReadLine();
+    }
+
+    static DataTable CompareDataTables(DataTable dt1, DataTable dt2, string columnToCompare)
+    {
+        // Create a new DataTable with the same structure as dt1
+        DataTable diffTable = dt1.Clone();
+
+        // Get the rows from dt1 that are not present in dt2 based on the specified column
+        var differences = dt1.AsEnumerable()
+            .Where(row1 => !dt2.AsEnumerable().Any(row2 => row1.Field<int>(columnToCompare) == row2.Field<int>(columnToCompare)));
+
+        // Copy the differences to the new DataTable
+        foreach (DataRow row in differences)
+        {
+            diffTable.ImportRow(row);
+        }
+
+        return diffTable;
+    }
+
+    static void DisplayDataTable(DataTable table)
+    {
+        Console.WriteLine("Differences:");
+        foreach (DataRow row in table.Rows)
+        {
+            foreach (DataColumn col in table.Columns)
+            {
+                Console.Write($"{col.ColumnName}: {row[col]} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    // GetFirstDataTable and GetSecondDataTable methods remain the same
+}
+
+
+
+
+
 
 
