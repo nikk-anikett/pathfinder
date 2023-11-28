@@ -69,4 +69,29 @@ function append_DataTable_To_CSV() {
   }
 }
 
-setInterval(append_DataTable_To_CSV, 60000);
+setInterval(append_DataTable_To_CSV, 60000)
+
+
+
+
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+const server = http.createServer((req, res) => {
+  if (req.url === '/') {
+    const indexPath = path.join(__dirname, 'index.html');
+    const indexData = fs.readFileSync(indexPath, 'utf-8');
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(indexData);
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
+});
+
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
