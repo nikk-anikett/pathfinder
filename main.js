@@ -1,240 +1,233 @@
-import {Queue, Stack, PriorityQueue} from './dataStructure.js'
+let grid = [];
+let col = 23;
+let rows = 23;
+let x = 1;
+let board = document.getElementById("board");
+let isStartSelected = false;
+let isTargetSelected = false;
+let startId = "14-6";
+let targetId = "4-2";
+let values = [];
+let queue = [];
 
 
-// Global Variables
-var rows = 35
-var cols = 80
-var visited = new Array(rows*cols)
-var start
-var end 
-
-var grid = new Array(rows)
-var rA = [0,1,0,-1]
-var rB = [1,0,-1,0]
-
-
-// Cell Initialization
-class Cell {
-    constructor(i, j) {
-        this.i = i
-        this.j = j
-        this.weighted = false
-        this.cost = 1
-        this.id = undefined
-        this.parent = undefined
-        this.neighbors = []
-        this.wall = false
-        this.fscore = 0
-        this.gscore = 100000
-        this.hscore = 0
-        
-        
-        
-        this.addNeighbors = function(grid) {
-            this.neighbors.length = 0
-            var i = this.i;
-            var j = this.j;
-            
-            for(var k=0; k<rA.length; k++){
-                if (valid(i+rA[k], j+rB[k], rows, cols) && !this.wall){
-                    this.neighbors.push(grid[i+rA[k]][j+rB[k]])
-                }
-            }
-        } 
-        
-        this.show = function(color){
-            document.getElementById(this.id).style.backgroundColor = color
-            if (this.wall){
-                document.getElementById(this.id).style.backgroundColor = "black"
-            }
-        }
-    }
-}
-
-
-
-/// Initial Boiler Plate Code
-setup()
-// init()
-
-
-
-// Event Handler and their functions
-document.getElementById("generate").addEventListener("click", function(){ resetBoard(true) })
-document.getElementById("resetfull").addEventListener("click", function(){ resetBoard(false) })
-
-var elements = document.getElementsByClassName("cell")
-Array.from(elements).forEach(function(element) {
-    element.addEventListener('click', toggleWall);
-});
-
-
-
-
-function toggleWall(){
-    var arr = one2two(this.id, rows, cols)
-    var cell = grid[arr[0]][arr[1]]
-    console.log(cell.id)
-    if(cell.wall) {
-        cell.wall = false
-        cell.show("white")
-    } else {
-        cell.wall = true
-        cell.show("black")
-    }
-    var i = arr[0]
-    var j = arr[1]
-    for(var k=0; k<8; k++){
-        if (valid(i+rA[k], j+rB[k], rows, cols)){
-            if(cell.wall) {
-                removeFromArray(grid[i+rA[k]][j+rB[k]].neighbors, cell)
-            } else {
-                grid[i+rA[k]][j+rB[k]].neighbors.push(cell)
-            }
-        }
-    }
-}
-
-function resetBoard(maze) { // Maze is boolean Value. False leads to clear board, true leads to a random maze.
-
-    for(var i=0; i<rows; i++) {
-        for(var j=0; j<cols; j++) {
-            grid[i][j].gscore = 100000
-            if(maze) { 
-                if(Math.random() < 0.3) {
-                    grid[i][j].wall = true
-                    grid[i][j].show("black")
-                } else {
-                    grid[i][j].wall = false
-                    grid[i][j].show("white")
-                }
-            }
-            else {
-                grid[i][j].wall = false
-                grid[i][j].show("white")
-            }
-        }
-    }
-
-    for(var i=0; i<rows; i++){
-        for(var j=0; j<cols; j++) {
-            grid[i][j].addNeighbors(grid);
-        }
-    }
-
-    for(var i=0; i<rows*cols; i++) {
-        visited[i] = false
-    }
-
-    start.wall = false
-    end.wall = false
-    start.show("white")
-    end.show("white")
-}
-
-document.getElementById("simulate").addEventListener("click", init)
-
-
-
-function init(){
-    
-    for(var i=0; i<rows*cols; i++) {
-        visited[i] = false
-    }
-
-   
-    var algo = document.getElementById("algo").value
-    
-    if(algo == "bfs")
-        bfs()
-    else if (algo == "dfs")
-        dfs()
-    else
-        astar()
-
+class Node{
+	constructor(id , rowNum , colNum){
+		this.id = id
+		this.rowNum = rowNum;
+		this.colNum = colNum;
+		this.visited = false; 
+		this.classType = "unvisited";
+		this.mouseDown = false;
+		this.previousNode = "";
+		this.isShortestPath = false
+	}
 
 }
-//// Main Functions
 
-function setup() {
-    for(var i =0; i<rows; i++){
-        grid[i] = new Array(cols);
-    }
-    
-    for(var i=0; i<rows; i++) {
-        for(var j=0; j<cols; j++) {
-            grid[i][j] = new Cell(i, j)
-        } 
-    }
-    start = grid[0][0]
-    end = grid[rows-1][cols-1]
-    start.wall = false;
-    end.wall = false
-    for(var i=0; i<rows; i++) {
-        for(var j=0; j<cols; j++) {
-            grid[i][j].addNeighbors(grid)
-        } 
-    }
-    
-    draw(grid, rows, cols)
+function createGrid(){
+	let tableHTML = "";
 
-    
+	for (let i = 0; i < rows ; i++ ){
+		let currentHTMLRow = `<tr id="row ${i}">`
+		
+
+		grid.push([])
+
+		grid[i].push(new Array(col));
+
+		for (let j=0; j < col; j++){
+			let nodeId = `${i}-${j}`;
+
+			grid[i][j] = new Node(nodeId, i ,j);
+			
+
+			currentHTMLRow +=`<td id = "${nodeId}"  class="unvisited"></td>`
+
+		}
+
+		tableHTML += `${currentHTMLRow}</tr>`;
+		board.innerHTML = tableHTML;
+
+	}
 }
 
-async function bfs(){ 
-    var q = new Queue()
-    q.enqueue(start)
-    
-    visited[start.id-1] = true
-    
-    while(!q.empty()) {
-        var node = q.front()
-        node.show("teal")
-        q.dequeue()
-        if(node == end) {
-            drawPath(end)
-            break
-        }
-        
-        for(var i = 0; i<node.neighbors.length; i++) {
-            if(!visited[node.neighbors[i].id-1]) {
-                q.enqueue(node.neighbors[i])
-                node.neighbors[i].show("blue")
-                visited[node.neighbors[i].id-1] = true
-                node.neighbors[i].parent = node
-            }
-        }
-        await sleep(10)
-        
-    }
-    
-}   
+function getNode(id){
 
+	let coordinates = id.split("-");
+  	let r = parseInt(coordinates[0]);
+  	let c = parseInt(coordinates[1]);
 
-async function dfs(){ 
-    var s = new Stack()
-    s.push(start)
-    
-    visited[start.id-1] = true
-    
-    while(!s.isempty()) {
-        var node = s.pop()
-        node.show("teal")
-        
-        if(node == end) {
-            drawPath(end)
-            break
-        }
-        
-        for(var i = 0; i<node.neighbors.length; i++) {
-            if(!visited[node.neighbors[i].id-1]) {
-                s.push(node.neighbors[i])
-                node.neighbors[i].show("blue")
-                visited[node.neighbors[i].id-1] = true
-                node.neighbors[i].parent = node
-            }
-        }
-        await sleep(10)
-    }
-    
-}   
+  	return grid[r][c];
+}
+
+function getCoordinate(id){
+	let coordinates = id.split("-");
+  	let r = parseInt(coordinates[0]);
+  	let c = parseInt(coordinates[1]);
+
+  	return r,c;
+}
+
+function setEventListners(){
+	for(let i = 0; i < rows; i++){
+		for(let j=0 ; j < col ; j++){
+			
+			 let currentId = `${i}-${j}`;
+			 let currentNode = getNode(currentId);
+			 let currentElement = document.getElementById(currentId);
+			 
+			 currentElement.addEventListener("click" , function(){
+			 	
+			 	if(!isStartSelected && !isTargetSelected){
+			 		if(grid[i][j].classType == "wall" ){
+			 				currentElement.className = "unvisited";
+			 				grid[i][j].classType = "unvisited";
+			 		
+			 		}else if(grid[i][j].classType == "unvisited"){
+			 			currentElement.className = "wall";
+			 			grid[i][j].classType = "wall";
+			 		}else if(grid[i][j].classType == "start"){
+			 			currentElement.className = "unvisited";
+			 			grid[i][j].classType = "unvisited";
+			 			startId = `${i}-${j}`;
+			 			isStartSelected = true;
+			 			
+			 		}else if(grid[i][j].classType == "target"){
+			 			currentElement.className = "unvisited";
+			 			grid[i][j].classType = "unvisited";
+			 			isTargetSelected = true;
+			 			targetId = `${i}-${j}`;
+			 		}
+			 	}else if(isStartSelected){
+			 		if(currentElement.id != targetId){
+			 			currentElement.className = "start";
+			 			grid[i][j].classType = "start";
+			 			isStartSelected = false;
+			 			startId = currentElement.id;
+			 		}
+			 		
+			 		
+			 	}else if(isTargetSelected){
+			 		if(currentElement.id != startId){
+			 			currentElement.className = "target";
+			 			grid[i][j].classType = "target";
+			 			isTargetSelected = false;
+			 			targetId = currentElement.id;
+
+			 		}
+			 	}
+		
+			 });
+		}
+	}
+}
+
+function setCoordinates(){
+	
+	document.getElementById(startId).className = "start";
+	document.getElementById(targetId).className = "target";
+	grid[14][6].classType = "start";
+	grid[4][2].classType = "target";
+}
+
+function BFSearch(){
+
+	let startPos = getNode(startId);
+	let r = startPos.rowNum;
+	let c = startPos.colNum;
+
+	queue.push([r,c]);
+	
+	while (queue.length){
+
+		let currentPos = queue.shift();
+
+		let r = currentPos[0];//1 0 2 1 1
+		let c = currentPos[1];//5 5 5 4 6
+		
+
+		if(r < 0 || r >= grid.length || c < 0 || c >= grid.length
+		 || grid[r][c].visited == true || grid[r][c].classType == "wall"){
+
+			continue;
+		}
+
+		grid[r][c].visited = true;
+
+		//drawing unsucceful path Nodes
+
+ 		let currentId = `${r}-${c}`;
+		let currentNode = getNode(currentId);
+
+		if(grid[r][c].visited && grid[r][c].id != startId 
+			&& grid[r][c].id != targetId){
+
+		}
+
+		//drawing shortest path Nodes
+		if(grid[r][c].id == targetId){
+			
+			 currentNode = getNode(currentNode.previousNode);
+			 while(currentNode.id != startId){
+				
+				let currentElement = document.getElementById(currentNode.id);
+
+				// currentElement.className = "shortest-path";
+				currentNode.isShortestPath = true;
+				currentNode = getNode(currentNode.previousNode);
+			}
+
+			break;
+		}
+		//end of drawing path function
+
+		values.push(grid[r][c]);
+		//up
+		if(r != 0 && grid[r-1][c].visited == false){
+			grid[r-1][c].previousNode = grid[r][c].id;
+			queue.push([r-1,c]);
+		}
+		//down
+		if( r != grid.length -1 && grid[r+1][c].visited == false){
+			grid[r+1][c].previousNode = grid[r][c].id;
+			queue.push([r+1,c]);
+		}
+
+		//left
+		if( c != 0 && grid[r][c-1].visited == false){
+			grid[r][c-1].previousNode = grid[r][c].id;
+			queue.push([r,c-1]);
+		}
+
+		//right
+		if(c != grid.length-1 && grid[r][c+1].visited == false){
+			grid[r][c+1].previousNode = grid[r][c].id;
+			queue.push([r,c+1]);
+		}
+
+	}
+	animate();
+}
+
+function animate(){
+
+	for(let i = 0 ; i < values.length ; i++){
+		setTimeout(function(){
+			if(values[i].isShortestPath == false && values[i].id != startId){
+				document.getElementById(values[i].id).className = "visited";
+			}else if(values[i].isShortestPath == true && values[i].id != startId){
+				document.getElementById(values[i].id).className = "shortest-path";
+			}
+			
+		}, 25 * i)
+	}
+}
+
+function clearBoard(){
+	window.location.reload();
+}
+
+createGrid();
+setCoordinates();
+setEventListners();
