@@ -1,346 +1,69 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Received Data</title>
-</head>
-<body>
-  <h1>Received Data:</h1>
-  <table border="1" id="dataTable">
-    <thead>
-      <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% data.forEach(function(row) { %>
-        <tr>
-          <td><%= row.FirstName %></td>
-          <td><%= row.LastName %></td>
-          <td><%= row.Email %></td>
-        </tr>
-      <% }); %>
-    </tbody>
-  </table>
-  <script>
-    // Optional JavaScript code for additional functionality if needed
-  </script>
-</body>
-</html>
-
-
-
 const express = require('express');
-const dgram = require('dgram');
+const fs = require('fs');
+const csv = require('csv-parser');
+const path = require('path');
 const app = express();
-const server = dgram.createSocket('udp4');
-const ejs = require('ejs');
 
-// Data received from UDP will be stored in this array of objects
-let receivedData = [];
-
-// UDP server to receive data
-server.on('message', (msg, rinfo) => {
-  const jsonData = msg.toString('utf8');
-  const dataObj = JSON.parse(jsonData);
-  receivedData.push(dataObj);
-  console.log('Received data:', receivedData);
-});
-
-server.on('listening', () => {
-  const address = server.address();
-  console.log(`UDP server listening on ${address.address}:${address.port}`);
-});
-
-server.on('error', (err) => {
-  console.error('UDP server error:', err);
-  server.close();
-});
-
-const PORT = 15000;
-server.bind(PORT);
-
-// Set up Express with EJS template engine
-app.set('view engine', 'ejs');
-
-// Route to provide received data to the EJS template
 app.get('/', (req, res) => {
-  res.render('index', { data: receivedData });
-});
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Web server listening on http://localhost:${port}`);
-});
+    res.send("backend connected");
+})
 
 
 
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
+const csvFolder = './CSV'; // Path to your CSV folder
 
-namespace WindowsFormsApp
-{
-    public partial class Form1 : Form
-    {
-        // Simple database as a List of objects
-        private List<User> database = new List<User>();
+const readCSVFiles = async () => {
+  try {
+    const files = await fs.promises.readdir(csvFolder);
 
-        public Form1()
-        {
-            InitializeComponent();
-        }
+    const data = [];
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Initialize the database with some data
-            database.Add(new User { FirstName = "John", LastName = "Doe", Email = "john.doe@example.com" });
-            database.Add(new User { FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" });
-            database.Add(new User { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" });
-        }
-
-        private void buttonSendData_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                // Convert the data to JSON format
-                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(database);
-
-                // Send the data to the Node.js server over UDP
-                string udpHost = "127.0.0.1";
-                int udpPort = 15000;
-                UdpClient udpClient = new UdpClient();
-                byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
-                udpClient.Send(sendBytes, sendBytes.Length, udpHost, udpPort);
-                udpClient.Close();
-
-                MessageBox.Show("Data sent successfully!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error sending data: " + ex.Message);
-            }
-        }
+    for (const file of files) {
+      if (file.endsWith('.csv')) {
+        const filePath = path.join(csvFolder, file);
+        const fileData = await readCSV(filePath);
+        data.push({ data: fileData });
+      }
     }
 
-    // Simple user class
-    public class User
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-    }
-}
+   
+
+    
+    // let result_task = new Array();
+    // let result_subtask = ((data[0].data));
+    // result_subtask = (result_subtask);
+    let result_task = (data[0].data);
+    
+    console.log(result_task);
+    return result_task;
+  } catch (error) {
+    console.error('Error reading CSV files:', error);
+  }
+};
+
+const readCSV = async (filePath) => {
+  const rows = [];
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        rows.push(row);
+      })
+      .on('end', () => {
+        resolve(rows);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+};
+
+readCSVFiles();
 
 
 
+app.listen(3000, () => {
+    console.log(`server is running on port ${3000}`);
+})
 
-
-
-
-
-
-
-
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Net.Sockets;
-using System.Text;
-
-namespace WindowsFormsApp
-{
-    public partial class Form1 : Form
-    {
-        // Simple database as a List of objects
-        private List<User> database = new List<User>();
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Initialize the database with some data
-            database.Add(new User { FirstName = "John", LastName = "Doe", Email = "john.doe@example.com" });
-            database.Add(new User { FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" });
-            database.Add(new User { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" });
-
-            // Add more data to the database
-            database.Add(new User { FirstName = "Bob", LastName = "Brown", Email = "bob.brown@example.com" });
-            database.Add(new User { FirstName = "Eve", LastName = "White", Email = "eve.white@example.com" });
-        }
-
-        private void buttonSendData_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                // Convert the data to JSON format
-                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(database);
-
-                // Send the data to the Node.js server over UDP
-                string udpHost = "127.0.0.1";
-                int udpPort = 15000;
-                UdpClient udpClient = new UdpClient();
-                byte[] sendBytes = Encoding.UTF8.GetBytes(jsonData);
-                udpClient.Send(sendBytes, sendBytes.Length, udpHost, udpPort);
-                udpClient.Close();
-
-                MessageBox.Show("Data sent successfully!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error sending data: " + ex.Message);
-            }
-        }
-    }
-
-    // Simple user class
-    public class User
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-    }
-}
-
-
-
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Net.Sockets;
-using System.Text;
-
-namespace WindowsFormsApp
-{
-    public partial class Form1 : Form
-    {
-        // Simple database as a List of objects
-        private List<User> database = new List<User>();
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Initialize the database with some data
-            database.Add(new User { FirstName = "John", LastName = "Doe", Email = "john.doe@example.com" });
-            database.Add(new User { FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" });
-            database.Add(new User { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" });
-        }
-
-        private void buttonSendData_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                // Convert the data to JSON format
-                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(database);
-
-                // Send the data to the Node.js server over UDP
-                string udpHost = "127.0.0.1";
-                int udpPort = 15000;
-                UdpClient udpClient = new UdpClient();
-                byte[] sendBytes = Encoding.UTF8.GetBytes(jsonData);
-                udpClient.Send(sendBytes, sendBytes.Length, udpHost, udpPort);
-                udpClient.Close();
-
-                MessageBox.Show("Data sent successfully!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error sending data: " + ex.Message);
-            }
-        }
-    }
-
-    // Simple user class
-    public class User
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-    }
-}
-
-
-
-
-
-const express = require('express');
-const dgram = require('dgram');
-const app = express();
-const server = dgram.createSocket('udp4');
-const ejs = require('ejs');
-
-// Data received from UDP will be stored in this array of objects
-let receivedData = [];
-
-// UDP server to receive data
-server.on('message', (msg, rinfo) => {
-  const jsonData = msg.toString('utf8');
-  const dataObj = JSON.parse(jsonData);
-  receivedData.push(dataObj);
-  console.log('Received data:', receivedData);
-});
-
-server.on('listening', () => {
-  const address = server.address();
-  console.log(`UDP server listening on ${address.address}:${address.port}`);
-});
-
-server.on('error', (err) => {
-  console.error('UDP server error:', err);
-  server.close();
-});
-
-const PORT = 15000;
-server.bind(PORT);
-
-// Set up Express with EJS template engine
-app.set('view engine', 'ejs');
-
-// Route to provide received data to the EJS template
-app.get('/', (req, res) => {
-  res.render('index', { data: receivedData });
-});
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Web server listening on http://localhost:${port}`);
-});
-
-
-
-
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Received Data</title>
-</head>
-<body>
-  <h1>Received Data:</h1>
-  <table border="1" id="dataTable">
-    <thead>
-      <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% data.forEach(function(row) { %>
-        <tr>
-          <td><%= row.FirstName %></td>
-          <td><%= row.LastName %></td>
-          <td><%= row.Email %></td>
-        </tr>
-      <% }); %>
-    </tbody>
-  </table>
-</body>
-</html>
