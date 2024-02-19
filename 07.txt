@@ -67,3 +67,87 @@ app.listen(3000, () => {
     console.log(`server is running on port ${3000}`);
 })
 
+
+
+
+import React, { useState } from 'react';
+import './App.css';
+
+function App() {
+  // Sample data for an employee and their tasks
+  const employeeData = {
+    name: 'John Doe',
+    tasks: [
+      { id: 1, title: 'Task 1', details: 'Details of Task 1' },
+      { id: 2, title: 'Task 2', details: 'Details of Task 2' },
+      { id: 3, title: 'Task 3', details: 'Details of Task 3' }
+    ]
+  };
+  const employeeData2 = {
+    name: 'John Doe',
+    tasks: [
+      { id: 1, title: 'c', details: 'Details of Task 1' },
+      { id: 1, title: 'c', details: 'Details of Task 12' },
+      { id: 1, title: 'c', details: 'Details of Task 13' },
+      { id: 1, title: 'o', details: 'Details of Task 14' },
+      { id: 1, title: 'o', details: 'Details of Task 15' },
+      { id: 2, title: 'c', details: 'Details of Task 2' },
+      { id: 2, title: 'c', details: 'Details of Task 22' },
+      { id: 2, title: 'ns', details: 'Details of Task 23' },
+      { id: 2, title: 'ns', details: 'Details of Task 24' },
+      { id: 3, title: 'c', details: 'Details of Task 31' }
+    ]
+  };
+
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  const handleTaskHover = (taskId) => {
+    
+      const tasks = employeeData2.tasks.filter(task => task.id === taskId);
+      setSelectedTask(tasks);
+   
+  };
+
+  return (
+    <div className="container">
+      <div className="column">
+        <div className="single-box">{employeeData.name}</div>
+      </div>
+      <div className="column">
+        {employeeData.tasks.map((task) => (
+          <div
+            key={task.id}
+            className="box-container"
+            onMouseEnter={() => handleTaskHover(task.id)}
+            onMouseLeave={() => setSelectedTask(null)}
+          >
+            <div className="box">{task.title}</div><br/><br/>
+          </div>
+        ))}
+      </div>
+      <div className="column">
+        {selectedTask && (
+          <div className="task-details">
+            {selectedTask.map(task => (
+              <div key={task.id}>
+                <h3>{task.title}</h3>
+                <p>{task.details}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
