@@ -1,114 +1,71 @@
 
-import React, { useEffect, useState } from "react";
-import AOS from 'aos';
-import 'aos/dist/aos.css'; 
-import "./App.css";
-import axios from "axios";
 
-let baseUrl = "http://192.168.1.127:8080";
+import React from "react";
+import "./App.css"; // Import the CSS file
 
-function App() {
-  const [task, setTask] = useState([]);
-  const [subtask, setSubtask] = useState([]);
-  const [selectedTask, setSelectedTask] = useState(null);
+const task = {
+  name: "John Doe",
+  data: [
+    { id: 1, title: "Task 1", details: "Details of Task 1" },
+    { id: 2, title: "Task 2", details: "Details of Task 2" },
+    { id: 34, title: "Task 3", details: "Details of Task 3" },
+    { id: 4, title: "Task 3", details: "Details of Task 3" },
+    { id: 5, title: "Task 3", details: "Details of Task 3" },
+    { id: 6, title: "Task 3", details: "Details of Task 3" },
+    { id: 7, title: "Task 3", details: "Details of Task 3" },
+    { id: 8, title: "Task 3", details: "Details of Task 3" },
+    { id: 3, title: "Task 3", details: "Details of Task 3" },
+    { id: 10, title: "Task 3", details: "Details of Task 3" },
+    { id: 11, title: "Task 3", details: "Details of Task 3" },
+  ],
+};
 
-  function getFunctionTask() {
-    axios
-      .get(`${baseUrl}/database2`)
-      .then((response) => {
-        console.log(response.data);
-        setTask(...response.data);
-      })
-      .catch((err) => console.log("found error"));
-  }
+const subtask = {
+  name: 'John Doe',
+  data: [
+    { id: 1, title: 'c', details: 'Details of Task 1' },
+    { id: 1, title: 'c', details: 'Details of Task 12' },
+    { id: 1, title: 'c', details: 'Details of Task 13' },
+    { id: 1, title: 'o', details: 'Details of Task 14' },
+    { id: 1, title: 'o', details: 'Details of Task 15' },
+    { id: 2, title: 'c', details: 'Details of Task 2' },
+    { id: 2, title: 'c', details: 'Details of Task 22' },
+    { id: 2, title: 'ns', details: 'Details of Task 23' },
+    { id: 2, title: 'ns', details: 'Details of Task 24' },
+    { id: 3, title: 'c', details: 'Details of Task 31' }
+  ]
+};
 
-  function getFunctionSubtask() {
-    axios
-      .get(`${baseUrl}/database1`)
-      .then((response) => {
-        setSubtask(...response.data);
-      })
-      .catch((err) => console.log("found error"));
-  }
-
-  useEffect(() => {
-    getFunctionTask();
-    getFunctionSubtask();
-  }, []);
-
-
-
-  useEffect(() => {
-    AOS.init({
-      // Global settings:
-      disable: false, // Accepts following values: 'phone', 'tablet', 'mobile', boolean, expression or function
-      startEvent: 'DOMContentLoaded', // Name of the event dispatched on the document, that AOS should initialize on
-      initClassName: 'aos-init', // Class applied after initialization
-      animatedClassName: 'aos-animate', // Class applied on animation
-      useClassNames: false, // If true, will add content of `data-aos` as classes on scroll
-
-      // Settings that can be overridden on per-element basis, by `data-aos-*` attributes:
-      offset: 120, // Offset (in px) from the original trigger point
-      delay: 0, // Values from 0 to 3000, with step 50ms
-      duration: 600, // Values from 0 to 3000, with step 50ms
-      easing: 'ease', // Default easing for AOS animations
-      once: false, // Whether animation should happen only once - while scrolling down
-      mirror: false, // Whether elements should animate out while scrolling past them
-      anchorPlacement: 'top-bottom', // Defines which position of the element regarding to window should trigger the animation
-    });
-  }, []);
-
-
-
-  const handleTaskHover = (taskId) => {
-    const tasks = subtask.data?.filter((task) => task.ID === taskId);
-    setSelectedTask(tasks);
+const App = () => {
+  const getSubtasksForTask = (taskId) => {
+    return subtask.data.filter(subtask => subtask.id === taskId);
   };
 
-
   return (
-    <div className="parent" onMouseLeave={() => setSelectedTask(null)}>
-      <div className="column_one">
-        <div className="single-box"> {task.name}</div>
+    <>
+      <div className="task-container">
+        <h2>{task.name}</h2>
       </div>
 
-      <div className="column_two">
-        {task.data?.map((ele) => (
-          <div key={ele.ID} onMouseEnter={() => handleTaskHover(ele.ID)}>
-            <div className="table-container" data-aos="zoom-in">
-              <div class="column" style={{ width: "50%" }}>
-                {ele["Current Tasks"]}
-              </div>
-              <div class="column" style={{ width: "15%" }}>
-                {ele["Target Date"]}
-              </div>
-              <div className="column" style={{ width: "15%" }}>
-                {ele["% Completion Till Now"]}
-              </div>
-              <div class="column" style={{ width: "20%" }}>
-                {ele["Members Involved"]}
-              </div>
-              <br/>
+      <div className="flex-container">
+        {task.data.map((taskItem) => (
+          <div key={taskItem.id} className="task-item">
+            <h3>{taskItem.title}</h3>
+            <p>{taskItem.details}</p>
+            <div className="subtask-container">
+              {getSubtasksForTask(taskItem.id).map((subtaskItem, index) => (
+                <div key={index} className="subtask-item">
+                  <h3>{subtaskItem.title}</h3>
+                  <p>{subtaskItem.details}</p>
+                </div>
+              ))}
             </div>
           </div>
         ))}
       </div>
-
-      <div className="column_three">
-        {selectedTask && (
-          <div className="task-details" data-aos="zoom-in">
-            {selectedTask.map((ele) => (
-              <div key={ele.id}>
-                <p>{ele.Work}</p>
-                <p>{ele.Status}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
-}
+};
 
 export default App;
 
@@ -117,99 +74,57 @@ export default App;
 
 
 
-.parent{
-  width: 100%;
-  height: 100%;
-  display: flex;
-  background-color: #282c34;
-  color:white;
-}
-.column_one{
+.task-container {
   width: 20%;
-  height: 100vh;
-  display: flex;
-}
-.column_two{
-  width: 60%;
-  height: 100%;
-  display: block;
-  justify-content:center;
-  /* position: relative;
-  top: 60px;
-  left: 20px; */
-  
-  transition: background-color 0.3s ease;
-}
-.column_three{
-  width: 40%;
-  height: 100%;
-  display: flex;
+  padding: 20px;
   background-color: red;
 }
 
-.single-box{
-  width: 250px;
-  height: 100px;
-  background-color: #3498db;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.task-container h2 {
+  margin-bottom: 10px;
+}
+
+.flex-container {
+  width: 80%;
+  display: block;
+  flex-wrap: wrap;
+  background-color: blue;
+}
+
+.task-item {
+  position: relative; /* Position the subtask container relative to the task item */
+  background-color: #f0f0f0;
   border-radius: 5px;
-  position: relative;
-  top:60px;
-  left: 10px;
-  box-shadow: rgba(86, 85, 85, 0.624) 0px 14px 28px, rgba(62, 61, 61, 0.624) 0px 10px 10px;
-}
-/* 
-.box {
-  width: 100%;
-  height: 150px;
-  display: flex;
-  justify-content:center;
-  position: relative;
-  top: 60px;
-  left: 20px;
-  
-  transition: background-color 0.3s ease;
-} */
-
-.table-container:hover {
-  background-color: #c0392b;
-  position: relative;
-}
-
-.task-details {
-  width:32%;
-  height: 300px;
-  overflow: scroll; 
-  background-color: #f1c40f;
-  color: #282c34;
-  border-radius: 5px;
-  position: absolute;
-  top: 10px;
-}
-
-.task-details p {
-  margin: 2px;
-  font-size: 18px;
-} 
-
-.table-container {
-
-  display: flex;
-  border: 1px solid white; 
-  border-radius: 10px; 
-  overflow: hidden;
+  padding: 10px;
   margin: 10px;
+  width: calc(25% - 20px); /* Adjust the width as needed */
+  cursor: pointer; /* Change cursor to pointer when hovering over task item */
 }
-.column {
-  border: 1px solid beige; /* Border for visualization */
-   /* Padding for content */
-   padding: 10px;
-   /* display: flex; */
-   position: relative;
+
+.task-item:hover {
+  background-color: #dcdcdc; /* Change background color on hover */
 }
-.progress-bar {
-  height: 20px; /* Adjust height as needed */
+
+.task-item h3 {
+  margin: 0 0 5px; /* Set margin for the title */
+}
+
+.task-item p {
+  margin: 0; /* Remove default margin for paragraphs */
+  font-size: 14px;
+}
+
+.subtask-container {
   position: absolute;
+  top: 0;
+  left: 100%; /* Position the subtask container to the right of the task item */
+  display: none; /* Initially hide the subtask container */
+  flex-direction: column;
+  background-color: #e0e0e0; /* Background color for subtask container */
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.task-item:hover .subtask-container {
+  display: block; /* Show subtask container when hovering over task item */
 }
